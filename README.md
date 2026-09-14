@@ -27,4 +27,19 @@ A Python program that loads customer and order data, combines them, calculates s
 - `orders.csv` - order records (order id, customer id, product, quantity, price)
 - `main.py` - the program
 
-## How to run
+## Outputs
+
+The program prints the loaded data, processed orders, and statistics to the console. It also writes a report to `output/report.json` in this format:
+
+```json
+{
+    "total_revenue": 2090.0,
+    "top_customer": "Alice Smith",
+    "top_city": "London",
+    "best_selling_products": [
+        "Laptop",
+        "Mouse",
+        "Monitor"
+    ]
+}
+```

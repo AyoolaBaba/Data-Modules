@@ -1,0 +1,125 @@
+
+import json
+import csv
+import os
+
+def load_customers(customer_file_name): # reading the customers json file
+    with open (customer_file_name) as file:
+        data = json.load(file)
+    return data
+
+def load_orders(order_file_name): # reading the orders csv file
+    with open(order_file_name) as file:
+        reader = csv.DictReader(file)
+        data1 = [row for row in reader]
+    return data1
+
+def process_orders(orders, customers):
+    processed_orders = []
+
+    for order in orders: # looping through the order
+        customer_id = int(order["customer_id"])
+
+        matching_customer = None # Find the matching customer to the order
+        for customer in customers:
+            if customer["customer_id"] == customer_id:
+                matching_customer = customer
+                break
+
+        quantity = int(order["quantity"]) # Calculating the order total
+        price = float(order["price"])
+        total = quantity * price
+
+        combined = { # Combining all of this info into a new dictionary
+            "customer_id": customer_id,
+            "customer_name": matching_customer["name"],
+            "city": matching_customer["city"],
+            "product": order["product"],
+            "quantity": quantity,
+            "price": price,
+            "total": total
+        }
+
+        processed_orders.append(combined)
+
+    return processed_orders
+
+def calculate_statistics(processed_orders):
+    total_revenue = 0
+    revenue_by_customer = {}
+    revenue_by_city = {}
+    units_by_product = {}
+    unique_customers = set()
+
+    for order in processed_orders:
+
+        total_revenue += order["total"] # Looping through every order and calculating total revenue from all totals of the order
+
+        customer_name = order["customer_name"] # Revenue per customer
+        revenue_by_customer[customer_name] = revenue_by_customer.get(customer_name, 0) + order["total"]
+
+        city = order["city"] # Revenue for each city
+        revenue_by_city[city] = revenue_by_city.get(city, 0) + order["total"]
+
+        product = order["product"] # Units sold of each product
+        units_by_product[product] = units_by_product.get(product, 0) + order["quantity"]
+
+        unique_customers.add(order["customer_id"]) # determining vhow many different customers placed orders
+
+    average_order_value = total_revenue / len(processed_orders) # Average order value calculation
+
+    return {
+        "total_revenue": total_revenue,
+        "revenue_by_customer": revenue_by_customer,
+        "revenue_by_city": revenue_by_city,
+        "units_by_product": units_by_product,
+        "average_order_value": average_order_value,
+        "unique_customers": len(unique_customers)
+    }
+
+def generate_report(stats):
+    revenue_by_customer = stats["revenue_by_customer"]
+    revenue_by_city = stats["revenue_by_city"]
+    units_by_product = stats["units_by_product"]
+
+    top_customer = max(revenue_by_customer, key=revenue_by_customer.get) # Find top customer (highest revenue)
+
+    top_city = max(revenue_by_city, key=revenue_by_city.get) # Find top city (highest revenue)
+
+    max_units = max(units_by_product.values()) # Find best-selling product(s), handling ties
+    best_selling_products = [product for product, units in units_by_product.items() if units == max_units]
+
+    report = { # Build the final report
+        "total_revenue": stats["total_revenue"],
+        "top_customer": top_customer,
+        "top_city": top_city,
+        "best_selling_products": best_selling_products
+    }
+
+    os.makedirs("output", exist_ok=True) # Make sure the output folder exists
+
+    with open("output/report.json", "w") as file: # Write to output/report.json with readable indentation
+        json.dump(report, file, indent=4)
+
+    return report
+
+def main():
+    # 1. Read customer data
+    customer_data = load_customers("Customers.json")
+    print(customer_data)
+    print("Customer data loaded")
+    # 2. Read the order data
+    order_data = load_orders("orders.csv")
+    print(order_data)
+    print("Order data loaded")
+    # 3. Combine customer and order data
+    processed_orders = process_orders(order_data,customer_data)
+    print(processed_orders)
+    # 4. Calculating the statistics
+    stats = calculate_statistics(processed_orders)
+    print(stats)
+    # 5. Generating and saving the final report
+    report = generate_report(stats)
+    print(report)
+    
+main()

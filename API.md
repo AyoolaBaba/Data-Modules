@@ -27,7 +27,7 @@ Application programming interface, a set of rules to communicate between softwar
 
 # REST Concepts
 
-REST stands for Representational State Transfer. It is an architectural style for designing APIs. Constraints: client-server communication(so sommunication between the user interface and the server sending back json stuff), statelessness(no state is stored on teh server, it gets everything from user then returns back json and you need to layer with things like cookies to store data), cachebillity(, layered system, uniform interface.
+REST stands for Representational State Transfer. It is an architectural style for designing APIs. Constraints: client-server communication(so communication between the user interface and the server sending back json stuff), statelessness(no state is stored on the server, it gets everything from user then returns back json and you need to layer with things like cookies to store data), cachebillity(responses should say whether they can be cached, so the client can reuse data instead of asking the server again.), layered system(the client doesn't need to know if it's talking directly to the server, or to something in between like a load balancer or proxy.), uniform interface(resources are accessed and manipulated in a consistent way using GET, POST, PUT, DELETE and JSON format, so any client can interact with any REST API the same way).
 
 - Resources (e.g. users, orders) are represented by URLs.
 - Actions on resources are performed using HTTP methods (GET, POST, PUT, DELETE).
@@ -37,7 +37,19 @@ REST stands for Representational State Transfer. It is an architectural style fo
 
 # REST Implementation
 
-This covers how REST concepts are put into practice when building an API.
+Rest api gives crud access in json data structure and http as transport.
+
+C - create = post or put
+R - Read = get
+U - Update = put or patch
+D - Delete = delete
+
+error if entity doesn't exist but for post and put theres an error if it already exists
+
+https = https for security //:swap.dev = site server hosting the api, /api/ = tells us this is teh api, /films = identifier usually a plural noun, /1 = ID
+https//swap.dev/api/films/1
+
+> curl (your api) returns json style dictionary of the server
 
 
 - Each resource gets its own endpoint (e.g. `/customers`, `/orders`).

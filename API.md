@@ -20,9 +20,14 @@ JSON stands for JavaScript Object Notation. It is a text format used to store an
 - JSON is language-independent and widely used for API requests and responses.
 - Python includes a `json` module to convert between JSON and Python objects (`json.load`, `json.dumps`, etc).
 
+# API
+
+Application programming interface, a set of rules to communicate between software using standard HTTP requests.
+
+
 # REST Concepts
 
-REST stands for Representational State Transfer. It is an architectural style for designing APIs.
+REST stands for Representational State Transfer. It is an architectural style for designing APIs. Constraints: client-server communication(so sommunication between the user interface and the server sending back json stuff), statelessness(no state is stored on teh server, it gets everything from user then returns back json and you need to layer with things like cookies to store data), cachebillity(, layered system, uniform interface.
 
 - Resources (e.g. users, orders) are represented by URLs.
 - Actions on resources are performed using HTTP methods (GET, POST, PUT, DELETE).

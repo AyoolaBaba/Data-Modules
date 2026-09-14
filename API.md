@@ -1,6 +1,6 @@
 # HTTP
 
-HTTP stands for Hypertext Transfer Protocol. It is the protocol used to transfer data between a client and a server on the web.
+HTTP stands for Hypertext Transfer Protocol. It is the protocol often used to transfer data between two applications, most commonly: a client and a server on the web, it also works for documents or html files and also between apps and servers to name a few.
 
 - A client sends a request, a server sends back a response.
 - Requests include a method, a URL, headers, and sometimes a body.

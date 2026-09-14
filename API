@@ -1,1 +1,8 @@
+# HTTP (Hypertext Transfer protocal)
 
+# its a way for applications to communicate on the internet. It used to be just for transfering hypertext documents (docs containing hyperlinked recourses ect html)
+# web brower ≥ web server
+# Phone app ≥ server
+# so you can use a REST API to communicate to server
+
+# It uses request response style transfer

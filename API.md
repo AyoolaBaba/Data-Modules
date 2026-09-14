@@ -4,7 +4,7 @@ HTTP stands for Hypertext Transfer Protocol. It is the protocol often used to tr
 
 - A client sends a request, a server sends back a response.
 - Requests include a method, a URL, headers, and sometimes a body.
-- Common methods: GET, POST, PUT, PATCH, DELETE.
+- Common methods: GET(requests a representation of a specoified recourcse), POST(submits an entity to the specified recourcse), PUT(asks for a response identicalto a GET request, but without the hard text body), PATCH(partital modidications to a recourse), DELETE(self explanatroy).
 - Responses include a status code, headers, and sometimes a body.
 - Status codes indicate the result: 2xx for success, 3xx for redirects, 4xx for client errors, 5xx for server errors.
 - HTTP is stateless. Each request is handled independently, with no memory of previous requests.

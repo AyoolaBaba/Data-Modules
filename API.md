@@ -8,6 +8,7 @@ HTTP stands for Hypertext Transfer Protocol. It is the protocol often used to tr
 - Responses include a status code, headers, and sometimes a body.
 - Status codes indicate the result: 2xx for success, 3xx for redirects, 4xx for client errors, 5xx for server errors.
 - HTTP is stateless. Each request is handled independently, with no memory of previous requests.
+- Cookies are small data stored by the client, sent back on future requests used for sessions, preferences, and tracking and Work around HTTP's stateless nature.
 
 # JSON
 

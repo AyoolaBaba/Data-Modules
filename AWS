@@ -1,0 +1,81 @@
+#!/usr/bin/env bash
+# provision_mongodb.sh - install and start MongoDB Community Edition on Ubuntu.
+#
+# Usage:
+#   ./provision_mongodb.sh                 # local-only (safe default)
+#   ./provision_mongodb.sh --allow-remote  # also listen on all interfaces (0.0.0.0)
+#
+# Supported: Ubuntu 20.04 (focal), 22.04 (jammy), 24.04 (noble) on x86_64/arm64.
+
+set -euo pipefail
+
+MONGO_VERSION="8.0"
+ALLOW_REMOTE=false
+
+for arg in "$@"; do
+  case "$arg" in
+    --allow-remote) ALLOW_REMOTE=true ;;
+    -h|--help) sed -n '2,8p' "$0"; exit 0 ;;
+    *) echo "Unknown option: $arg" >&2; exit 1 ;;
+  esac
+done
+
+if [[ $EUID -eq 0 ]]; then SUDO=""; else SUDO="sudo"; fi
+
+log() { echo -e "\n==> $*"; }
+die() { echo "ERROR: $*" >&2; exit 1; }
+
+# 1. Check we're on a supported Ubuntu release
+. /etc/os-release
+[[ "${ID:-}" == "ubuntu" ]] || die "This script is for Ubuntu (found: ${ID:-unknown})."
+CODENAME="${VERSION_CODENAME:-}"
+case "$CODENAME" in
+  focal|jammy|noble) ;;
+  *) die "Ubuntu '$CODENAME' is not supported by MongoDB $MONGO_VERSION." ;;
+esac
+log "Ubuntu $CODENAME detected - installing MongoDB $MONGO_VERSION"
+
+# 2. Prerequisites
+log "Installing prerequisites"
+$SUDO apt-get update -y
+$SUDO apt-get install -y gnupg curl ca-certificates
+
+# 3. Add MongoDB's signing key (safe to re-run)
+log "Adding MongoDB signing key"
+curl -fsSL "https://www.mongodb.org/static/pgp/server-${MONGO_VERSION}.asc" \
+  | $SUDO gpg --batch --yes --dearmor \
+      -o "/usr/share/keyrings/mongodb-server-${MONGO_VERSION}.gpg"
+
+# 4. Add the MongoDB apt repository
+log "Adding MongoDB repository"
+echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-${MONGO_VERSION}.gpg ] https://repo.mongodb.org/apt/ubuntu ${CODENAME}/mongodb-org/${MONGO_VERSION} multiverse" \
+  | $SUDO tee "/etc/apt/sources.list.d/mongodb-org-${MONGO_VERSION}.list" > /dev/null
+
+# 5. Install
+log "Installing mongodb-org"
+$SUDO apt-get update -y
+$SUDO apt-get install -y mongodb-org
+
+# 6. Optional: allow connections from outside the instance
+if $ALLOW_REMOTE; then
+  log "Setting bindIp to 0.0.0.0 (remote connections allowed)"
+  $SUDO sed -i -E 's/^([[:space:]]*bindIp:).*/\1 0.0.0.0/' /etc/mongod.conf
+  echo "WARNING: MongoDB has no password. Restrict port 27017 to 'My IP' in your AWS security group."
+fi
+
+# 7. Start now and on every boot
+log "Starting mongod"
+$SUDO systemctl daemon-reload
+$SUDO systemctl enable mongod
+$SUDO systemctl restart mongod
+
+# 8. Verify (retry while the server warms up)
+log "Verifying"
+for i in {1..10}; do
+  if mongosh --quiet --eval 'db.runCommand({ ping: 1 }).ok' 2>/dev/null | grep -q 1; then
+    echo "MongoDB is up and responding (ping ok)."
+    exit 0
+  fi
+  sleep 2
+done
+die "MongoDB did not respond. Check: sudo journalctl -u mongod -n 30"
